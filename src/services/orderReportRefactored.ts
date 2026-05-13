@@ -1,12 +1,11 @@
 import * as fs from "fs";
 import * as path from "path";
 import {
-  LOYALTY_RATIO,
   MAX_DISCOUNT,
   TAX,
   SHIPPING_LIMIT,
   HANDLING_FEE,
-} from "./config/constants";
+} from "../config/constants";
 import {
   Customer,
   Promotion,
@@ -17,11 +16,21 @@ import {
   Currency,
   Zone,
   PromotionType,
-} from "./types/types";
-import { parseCsvRows } from "./utils/parser.utils";
+  CustomerTotals,
+} from "../types/types";
+import { parseCsvRows } from "../utils/parser.utils";
+import { calculateLoyaltyPoints } from "../utils/calculator/loyalty-points.utils";
+import { throwParseError } from "../utils/errors.utils";
+import { calculateLineTotal } from "../utils/calculator/line-total.utils";
+import { getPromoValues } from "../utils/calculator/promo.utils";
+import { calculateMorningBonus } from "../utils/calculator/morning-bonus.utils";
+import {
+  addOrderToCustomerTotals,
+  createCustomerTotals,
+} from "../utils/calculator/customer-total.utils";
 
 function run(): string {
-  const base = path.join(__dirname, "..");
+  const base = path.join(__dirname, "../../");
   const custPath = path.join(base, "data", "customers.csv");
   const ordPath = path.join(base, "data", "orders.csv");
   const prodPath = path.join(base, "data", "products.csv");
@@ -42,9 +51,7 @@ function run(): string {
       customers[customer.id] = customer;
       return customer;
     } catch {
-      throw new Error(
-        `Error parsing customer line ${lineNumber}: ${parts.join(",")}`,
-      );
+      throwParseError("customer", lineNumber, parts);
     }
   });
 
@@ -63,9 +70,7 @@ function run(): string {
       products[product.id] = product;
       return product;
     } catch {
-      throw new Error(
-        `Error parsing product line ${lineNumber}: ${parts.join(",")}`,
-      );
+      throwParseError("product", lineNumber, parts);
     }
   });
 
@@ -81,9 +86,7 @@ function run(): string {
       shippingZones[shippingZone.zone] = shippingZone;
       return shippingZone;
     } catch {
-      throw new Error(
-        `Error parsing shipping zone line ${lineNumber}: ${parts.join(",")}`,
-      );
+      throwParseError("shipping zone", lineNumber, parts);
     }
   });
 
@@ -100,13 +103,10 @@ function run(): string {
       promotions[promotion.code] = promotion;
       return promotion;
     } catch {
-      throw new Error(
-        `Error parsing promotion line ${lineNumber}: ${parts.join(",")}`,
-      );
+      throwParseError("promotion", lineNumber, parts);
     }
   });
 
-  // Lecture orders (parsing avec try/catch mais logique mélangée)
   const orders: Order[] = [];
   const ordData = fs.readFileSync(ordPath, "utf-8");
   parseCsvRows(ordData, (parts, lineNumber) => {
@@ -126,74 +126,57 @@ function run(): string {
       orders.push(order);
       return order;
     } catch {
-      // preserve legacy behavior: skip malformed order rows silently
+      // NOTE: Legacy behavior is to skip malformed orders without logging, which can hide data issues.
       return null as unknown as Order;
     }
   });
 
-  // Calcul des points de fidélité (première duplication)
   const loyaltyPoints: Record<string, number> = {};
-  for (const o of orders) {
-    const cid = o.customerId;
-    if (!loyaltyPoints[cid]) {
-      loyaltyPoints[cid] = 0;
-    }
-    // Calcul basé sur le prix de commande
-    loyaltyPoints[cid] += o.quantity * o.unitPrice * LOYALTY_RATIO;
+  for (const order of orders) {
+    calculateLoyaltyPoints(order, loyaltyPoints);
   }
 
-  // Groupement par client (logique métier mélangée avec aggregation)
-  const totalsByCustomer: Record<string, any> = {};
-  for (const o of orders) {
-    const cid = o.customerId;
+  const totalsByCustomer: Record<string, CustomerTotals> = {};
+  for (const order of orders) {
+    const cid = order.customerId;
 
-    // Récupération du produit avec fallback
-    const prod = products[o.productId] || {};
-    let basePrice = prod.price !== undefined ? prod.price : o.unitPrice;
+    const prod = products[order.productId] || {};
+    const basePrice = prod.price !== undefined ? prod.price : order.unitPrice;
 
-    // Application de la promo (logique complexe et bugguée)
-    const promoCode = o.promoCode;
-    let discountRate = 0;
-    let fixedDiscount = 0;
+    // Apply promo code if exists
+    const promoCode = order.promoCode;
+    const promo = promoCode ? promotions[promoCode] : undefined;
+    const { discountRate, fixedDiscount } = promo
+      ? getPromoValues(promo)
+      : { discountRate: 0, fixedDiscount: 0 };
 
-    if (promoCode && promotions[promoCode]) {
-      const promo = promotions[promoCode];
-      if (promo.active) {
-        if (promo.type === "PERCENTAGE") {
-          discountRate = parseFloat(promo.value) / 100;
-        } else if (promo.type === "FIXED") {
-          // Bug intentionnel: appliqué par ligne au lieu de global
-          fixedDiscount = parseFloat(promo.value);
-        }
-      }
-    }
+    // Calculate line total with discounts
+    let lineTotal = calculateLineTotal({
+      quantity: order.quantity,
+      basePrice,
+      discountRate,
+      fixedDiscount,
+    });
 
-    // Calcul ligne avec réduction promo
-    let lineTotal =
-      o.quantity * basePrice * (1 - discountRate) - fixedDiscount * o.quantity;
+    // Calculate morning bonus if exists
+    const hour = parseInt(order.time.split(":")[0]);
+    const morningBonus = calculateMorningBonus(lineTotal, hour);
 
-    // Bonus matin (règle cachée basée sur l'heure)
-    const hour = parseInt(o.time.split(":")[0]);
-    let morningBonus = 0;
-    if (hour < 10) {
-      morningBonus = lineTotal * 0.03; // 3% de réduction supplémentaire
-    }
-    lineTotal = lineTotal - morningBonus;
+    lineTotal = lineTotal - morningBonus; // Apply morning bonus
 
+    // Initialize totals for customer if not exists
     if (!totalsByCustomer[cid]) {
-      totalsByCustomer[cid] = {
-        subtotal: 0.0,
-        items: [],
-        weight: 0.0,
-        promoDiscount: 0.0,
-        morningBonus: 0.0,
-      };
+      totalsByCustomer[cid] = createCustomerTotals();
     }
 
-    totalsByCustomer[cid].subtotal += lineTotal;
-    totalsByCustomer[cid].weight += (prod.weight || 1.0) * o.quantity;
-    totalsByCustomer[cid].items.push(o);
-    totalsByCustomer[cid].morningBonus += morningBonus;
+    // Accumulate totals
+    totalsByCustomer[cid] = addOrderToCustomerTotals({
+      totals: totalsByCustomer[cid],
+      order,
+      product: prod,
+      lineTotal,
+      morningBonus,
+    });
   }
 
   // Génération du rapport (mélange calculs + formatage + I/O)

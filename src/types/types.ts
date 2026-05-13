@@ -11,6 +11,14 @@ export interface Customer {
   currency: Currency;
 }
 
+export interface CustomerTotals {
+  subtotal: number;
+  items: Order[];
+  weight: number;
+  promoDiscount: number;
+  morningBonus: number;
+}
+
 export interface Product {
   id: string;
   name: string;
