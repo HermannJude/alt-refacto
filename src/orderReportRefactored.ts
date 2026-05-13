@@ -20,7 +20,6 @@ import {
 } from "./types/types";
 import { parseCsvRows } from "./utils/parser.utils";
 
-// Fonction principale qui fait TOUT
 function run(): string {
   const base = path.join(__dirname, "..");
   const custPath = path.join(base, "data", "customers.csv");
@@ -29,7 +28,6 @@ function run(): string {
   const shipPath = path.join(base, "data", "shipping_zones.csv");
   const promoPath = path.join(base, "data", "promotions.csv");
 
-  // P
   const customers: Record<string, Customer> = {};
   const custData = fs.readFileSync(custPath, "utf-8");
   parseCsvRows(custData, (parts, lineNumber) => {
@@ -50,7 +48,6 @@ function run(): string {
     }
   });
 
-  // Lecture fichier products (duplication du parsing)
   const products: Record<string, Product> = {};
   const prodData = fs.readFileSync(prodPath, "utf-8");
   parseCsvRows(prodData, (parts, lineNumber) => {
@@ -72,7 +69,6 @@ function run(): string {
     }
   });
 
-  // Lecture shipping zones (encore une autre variation du parsing)
   const shippingZones: Record<string, ShippingZone> = {};
   const shipData = fs.readFileSync(shipPath, "utf-8");
   parseCsvRows(shipData, (parts, lineNumber) => {
@@ -91,29 +87,24 @@ function run(): string {
     }
   });
 
-  // Lecture promotions (parsing légèrement différent encore)
   const promotions: Record<string, Promotion> = {};
-  try {
-    const promoData = fs.readFileSync(promoPath, "utf-8");
-    parseCsvRows(promoData, (parts, lineNumber) => {
-      try {
-        const promotion: Promotion = {
-          code: parts[0],
-          type: (parts[1] || "PERCENTAGE") as PromotionType,
-          value: parts[2],
-          active: parts[3] !== "false",
-        };
-        promotions[promotion.code] = promotion;
-        return promotion;
-      } catch {
-        throw new Error(
-          `Error parsing promotion line ${lineNumber}: ${parts.join(",")}`,
-        );
-      }
-    });
-  } catch {
-    // no promotions file, continue
-  }
+  const promoData = fs.readFileSync(promoPath, "utf-8");
+  parseCsvRows(promoData, (parts, lineNumber) => {
+    try {
+      const promotion: Promotion = {
+        code: parts[0],
+        type: (parts[1] || "PERCENTAGE") as PromotionType,
+        value: parts[2],
+        active: parts[3] !== "false",
+      };
+      promotions[promotion.code] = promotion;
+      return promotion;
+    } catch {
+      throw new Error(
+        `Error parsing promotion line ${lineNumber}: ${parts.join(",")}`,
+      );
+    }
+  });
 
   // Lecture orders (parsing avec try/catch mais logique mélangée)
   const orders: Order[] = [];
