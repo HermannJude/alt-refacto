@@ -1,0 +1,115 @@
+Customer: Alice Martin (C001)
+Level: BASIC | Zone: ZONE1 | Currency: EUR
+Subtotal: 174.92
+Discount: 17.49
+  - Volume discount: 17.49
+  - Loyalty discount: 0.00
+Tax: 0.00
+Shipping (ZONE1, 7.1kg): 0.00
+Total: 157.43 EUR
+Loyalty Points: 1
+
+Customer: Bob Durant (C002)
+Level: PREMIUM | Zone: ZONE2 | Currency: EUR
+Subtotal: 1362.66
+Discount: 200.00
+  - Volume discount: 200.00
+  - Loyalty discount: 0.00
+  - Morning bonus: 42.14
+Tax: 0.00
+Shipping (ZONE2, 28.2kg): 2.05
+Total: 1164.71 EUR
+Loyalty Points: 15
+
+Customer: Charlie Smith (C003)
+Level: BASIC | Zone: ZONE3 | Currency: USD
+Subtotal: 414.94
+Discount: 41.49
+  - Volume discount: 41.49
+  - Loyalty discount: 0.00
+Tax: 0.00
+Shipping (ZONE3, 22.0kg): 0.50
+Total: 373.95 USD
+Loyalty Points: 4
+
+Customer: Diana Prince (C004)
+Level: PREMIUM | Zone: ZONE1 | Currency: EUR
+Subtotal: 2276.09
+Discount: 200.00
+  - Volume discount: 200.00
+  - Loyalty discount: 0.00
+Tax: 0.00
+Shipping (ZONE1, 17.0kg): 0.00
+Total: 2076.09 EUR
+Loyalty Points: 23
+
+Customer: Eve Torres (C005)
+Level: BASIC | Zone: ZONE2 | Currency: GBP
+Subtotal: 103.74
+Discount: 10.89
+  - Volume discount: 10.89
+  - Loyalty discount: 0.00
+  - Morning bonus: 3.21
+Tax: 0.00
+Shipping (ZONE2, 3.0kg): 0.00
+Total: 92.85 GBP
+Loyalty Points: 1
+
+Customer: Frank Castle (C006)
+Level: BASIC | Zone: ZONE1 | Currency: EUR
+Subtotal: 179.50
+Discount: 17.95
+  - Volume discount: 17.95
+  - Loyalty discount: 0.00
+Tax: 0.00
+Shipping (ZONE1, 11.0kg): 0.00
+Total: 161.55 EUR
+Loyalty Points: 1
+
+Customer: Grace Lee (C007)
+Level: PREMIUM | Zone: ZONE4 | Currency: EUR
+Subtotal: 2997.00
+Discount: 200.00
+  - Volume discount: 200.00
+  - Loyalty discount: 0.00
+Tax: 0.00
+Shipping (ZONE4, 11.5kg): 0.00
+Total: 2797.00 EUR
+Loyalty Points: 29
+
+Customer: Henry Wong (C008)
+Level: BASIC | Zone: ZONE1 | Currency: EUR
+Subtotal: 64.95
+Discount: 3.25
+  - Volume discount: 3.25
+  - Loyalty discount: 0.00
+Tax: 0.00
+Shipping (ZONE1, 2.0kg): 0.00
+Total: 61.70 EUR
+Loyalty Points: 0
+
+Customer: Iris West (C009)
+Level: PREMIUM | Zone: ZONE2 | Currency: EUR
+Subtotal: 324.93
+Discount: 32.49
+  - Volume discount: 32.49
+  - Loyalty discount: 0.00
+  - Morning bonus: 10.05
+Tax: 0.00
+Shipping (ZONE2, 40.0kg): 5.00
+Total: 297.44 EUR
+Loyalty Points: 3
+
+Customer: Jack Ryan (C010)
+Level: BASIC | Zone: ZONE3 | Currency: USD
+Subtotal: 434.75
+Discount: 43.48
+  - Volume discount: 43.48
+  - Loyalty discount: 0.00
+Tax: 0.00
+Shipping (ZONE3, 3.5kg): 0.00
+Total: 391.28 USD
+Loyalty Points: 4
+
+Grand Total: 7574.00 EUR
+Total Tax Collected: 0.00 EUR

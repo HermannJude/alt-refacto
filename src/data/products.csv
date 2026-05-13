@@ -1,0 +1,16 @@
+id,name,category,price,weight,taxable
+P001,Laptop Pro,Electronics,1299.00,2.5,true
+P002,Wireless Mouse,Electronics,29.99,0.2,true
+P003,Office Chair,Furniture,199.99,15.0,true
+P004,Desk Lamp,Furniture,45.00,1.5,true
+P005,Notebook A4,Stationery,3.50,0.5,true
+P006,Pen Set,Stationery,12.00,0.1,true
+P007,USB Cable,Electronics,8.99,0.1,true
+P008,Monitor 27",Electronics,399.00,6.5,true
+P009,Keyboard Mechanical,Electronics,129.99,1.2,true
+P010,Webcam HD,Electronics,89.00,0.3,true
+P011,Bookshelf,Furniture,149.99,25.0,true
+P012,Desk Mat,Accessories,24.99,0.8,true
+P013,Phone Stand,Accessories,15.99,0.3,true
+P014,Cable Organizer,Accessories,9.99,0.2,true
+P015,Water Bottle,Accessories,12.99,0.4,false
