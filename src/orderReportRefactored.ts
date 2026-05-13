@@ -18,6 +18,7 @@ import {
   Zone,
   PromotionType,
 } from "./types/types";
+import { parseCsvRows } from "./utils/parser.utils";
 
 // Fonction principale qui fait TOUT
 function run(): string {
@@ -31,9 +32,7 @@ function run(): string {
   // P
   const customers: Record<string, Customer> = {};
   const custData = fs.readFileSync(custPath, "utf-8");
-  const custLines = custData.split("\n").filter((l: string) => l.trim());
-  for (let i = 1; i < custLines.length; i++) {
-    const parts = custLines[i].split(",");
+  parseCsvRows(custData, (parts, lineNumber) => {
     try {
       const customer: Customer = {
         id: parts[0],
@@ -42,19 +41,19 @@ function run(): string {
         shippingZone: (parts[3] || "ZONE1") as Zone,
         currency: (parts[4] || "EUR") as Currency,
       };
-
       customers[customer.id] = customer;
-    } catch (e) {
-      throw new Error(`Error parsing customer line ${i + 1}: ${custLines[i]}`);
+      return customer;
+    } catch {
+      throw new Error(
+        `Error parsing customer line ${lineNumber}: ${parts.join(",")}`,
+      );
     }
-  }
+  });
 
   // Lecture fichier products (duplication du parsing)
   const products: Record<string, Product> = {};
   const prodData = fs.readFileSync(prodPath, "utf-8");
-  const prodLines = prodData.split("\n").filter((l: string) => l.trim());
-  for (let i = 1; i < prodLines.length; i++) {
-    const parts = prodLines[i].split(",");
+  parseCsvRows(prodData, (parts, lineNumber) => {
     try {
       const product: Product = {
         id: parts[0],
@@ -65,56 +64,61 @@ function run(): string {
         taxable: parts[5] === "true",
       };
       products[product.id] = product;
-    } catch (e) {
-      throw new Error(`Error parsing product line ${i + 1}: ${prodLines[i]}`);
+      return product;
+    } catch {
+      throw new Error(
+        `Error parsing product line ${lineNumber}: ${parts.join(",")}`,
+      );
     }
-  }
+  });
 
   // Lecture shipping zones (encore une autre variation du parsing)
   const shippingZones: Record<string, ShippingZone> = {};
   const shipData = fs.readFileSync(shipPath, "utf-8");
-  const shipLines = shipData.split("\n").filter((l: string) => l.trim());
-  for (let i = 1; i < shipLines.length; i++) {
-    const p = shipLines[i].split(",");
+  parseCsvRows(shipData, (parts, lineNumber) => {
     try {
       const shippingZone: ShippingZone = {
-        zone: p[0] as Zone,
-        base: parseFloat(p[1]),
-        perKg: parseFloat(p[2] || "0.5"),
+        zone: parts[0] as Zone,
+        base: parseFloat(parts[1]),
+        perKg: parseFloat(parts[2] || "0.5"),
       };
       shippingZones[shippingZone.zone] = shippingZone;
-    } catch (e) {
+      return shippingZone;
+    } catch {
       throw new Error(
-        `Error parsing shipping zone line ${i + 1}: ${shipLines[i]}`,
+        `Error parsing shipping zone line ${lineNumber}: ${parts.join(",")}`,
       );
     }
-  }
+  });
 
   // Lecture promotions (parsing légèrement différent encore)
   const promotions: Record<string, Promotion> = {};
   try {
     const promoData = fs.readFileSync(promoPath, "utf-8");
-    const promoLines = promoData.split("\n").filter((l: string) => l.trim());
-    for (let i = 1; i < promoLines.length; i++) {
-      const p = promoLines[i].split(",");
-      const promotion: Promotion = {
-        code: p[0],
-        type: p[1] as PromotionType,
-        value: p[2],
-        active: p[3] !== "false",
-      };
-      promotions[promotion.code] = promotion;
-    }
-  } catch (err) {
-    // Si pas de fichier promo, on continue
+    parseCsvRows(promoData, (parts, lineNumber) => {
+      try {
+        const promotion: Promotion = {
+          code: parts[0],
+          type: (parts[1] || "PERCENTAGE") as PromotionType,
+          value: parts[2],
+          active: parts[3] !== "false",
+        };
+        promotions[promotion.code] = promotion;
+        return promotion;
+      } catch {
+        throw new Error(
+          `Error parsing promotion line ${lineNumber}: ${parts.join(",")}`,
+        );
+      }
+    });
+  } catch {
+    // no promotions file, continue
   }
 
   // Lecture orders (parsing avec try/catch mais logique mélangée)
   const orders: Order[] = [];
   const ordData = fs.readFileSync(ordPath, "utf-8");
-  const ordLines = ordData.split("\n").filter((l: string) => l.trim());
-  for (let i = 1; i < ordLines.length; i++) {
-    const parts = ordLines[i].split(",");
+  parseCsvRows(ordData, (parts, lineNumber) => {
     try {
       const qty = parseInt(parts[3]);
       const price = parseFloat(parts[4]);
@@ -129,11 +133,12 @@ function run(): string {
         time: parts[7] || "12:00",
       };
       orders.push(order);
-    } catch (e) {
-      // Skip silencieux
-      continue;
+      return order;
+    } catch {
+      // preserve legacy behavior: skip malformed order rows silently
+      return null as unknown as Order;
     }
-  }
+  });
 
   // Calcul des points de fidélité (première duplication)
   const loyaltyPoints: Record<string, number> = {};
