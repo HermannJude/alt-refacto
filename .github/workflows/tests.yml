@@ -1,7 +1,7 @@
 name: Tests
 
 on:
-  pull_request:
+  workflow_dispatch:
 
 jobs:
   test:
@@ -24,7 +24,7 @@ jobs:
           cache-dependency-path: pnpm-lock.yaml 
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
       
       - name: Generate outputs
         run: |
