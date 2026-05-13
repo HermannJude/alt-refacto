@@ -28,10 +28,10 @@ function run(): string {
   const shipPath = path.join(base, "data", "shipping_zones.csv");
   const promoPath = path.join(base, "data", "promotions.csv");
 
-  // Lecture fichier customers (parsing mélangé avec logique)
+  // P
   const customers: Record<string, Customer> = {};
   const custData = fs.readFileSync(custPath, "utf-8");
-  const custLines = custData.split("\n").filter((l) => l.trim());
+  const custLines = custData.split("\n").filter((l: string) => l.trim());
   for (let i = 1; i < custLines.length; i++) {
     const parts = custLines[i].split(",");
     try {
@@ -52,7 +52,7 @@ function run(): string {
   // Lecture fichier products (duplication du parsing)
   const products: Record<string, Product> = {};
   const prodData = fs.readFileSync(prodPath, "utf-8");
-  const prodLines = prodData.split("\n").filter((l) => l.trim());
+  const prodLines = prodData.split("\n").filter((l: string) => l.trim());
   for (let i = 1; i < prodLines.length; i++) {
     const parts = prodLines[i].split(",");
     try {
@@ -73,7 +73,7 @@ function run(): string {
   // Lecture shipping zones (encore une autre variation du parsing)
   const shippingZones: Record<string, ShippingZone> = {};
   const shipData = fs.readFileSync(shipPath, "utf-8");
-  const shipLines = shipData.split("\n").filter((l) => l.trim());
+  const shipLines = shipData.split("\n").filter((l: string) => l.trim());
   for (let i = 1; i < shipLines.length; i++) {
     const p = shipLines[i].split(",");
     try {
@@ -94,7 +94,7 @@ function run(): string {
   const promotions: Record<string, Promotion> = {};
   try {
     const promoData = fs.readFileSync(promoPath, "utf-8");
-    const promoLines = promoData.split("\n").filter((l) => l.trim());
+    const promoLines = promoData.split("\n").filter((l: string) => l.trim());
     for (let i = 1; i < promoLines.length; i++) {
       const p = promoLines[i].split(",");
       const promotion: Promotion = {
@@ -112,7 +112,7 @@ function run(): string {
   // Lecture orders (parsing avec try/catch mais logique mélangée)
   const orders: Order[] = [];
   const ordData = fs.readFileSync(ordPath, "utf-8");
-  const ordLines = ordData.split("\n").filter((l) => l.trim());
+  const ordLines = ordData.split("\n").filter((l: string) => l.trim());
   for (let i = 1; i < ordLines.length; i++) {
     const parts = ordLines[i].split(",");
     try {
