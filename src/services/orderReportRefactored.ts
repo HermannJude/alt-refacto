@@ -359,7 +359,7 @@ function run(): string {
   console.log(result);
 
   // Export JSON surprise
-  const outputPath = path.join(base, "output.json");
+  const outputPath = path.join(base, "src/output.json");
   fs.writeFileSync(outputPath, JSON.stringify(jsonData, null, 2));
 
   return result;
