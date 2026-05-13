@@ -5,7 +5,7 @@
   "main": "legacy/orderReportLegacy.ts",
   "scripts": {
     "legacy": "ts-node legacy/orderReportLegacy.ts",
-    "output": "pnpm legacy > legacy/expected/report.txt",
+    "output": "ts-node legacy/orderReportLegacy.ts > legacy/expected/report.txt",
     "test": "jest",
     "test:watch": "jest --watch"
   },
