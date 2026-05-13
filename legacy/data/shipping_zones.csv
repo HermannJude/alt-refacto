@@ -1,0 +1,5 @@
+zone,base,per_kg
+ZONE1,5.00,0.50
+ZONE2,7.50,0.60
+ZONE3,10.00,0.80
+ZONE4,12.50,1.00
