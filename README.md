@@ -34,13 +34,7 @@ The Docker build uses the `test` stage from `Dockerfile`, which:
 ### Docker Compose
 
 ```bash
-docker compose up --build --abort-on-container-exit
-```
-
-### Run Container Directly
-
-```bash
-docker compose run --rm app
+docker compose up
 ```
 
 ## Project Files
