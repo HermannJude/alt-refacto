@@ -5,7 +5,9 @@
   "main": "legacy/orderReportLegacy.ts",
   "scripts": {
     "legacy": "ts-node legacy/orderReportLegacy.ts",
-    "output": "ts-node legacy/orderReportLegacy.ts > legacy/expected/report.txt",
+    "refactored": "ts-node src/orderReportRefactored.ts",
+    "output:legacy": "ts-node legacy/orderReportLegacy.ts > legacy/expected/report.txt",
+    "output:refactored": "ts-node src/orderReportRefactored.ts > src/expected/report.txt",
     "test": "jest",
     "test:watch": "jest --watch"
   },

@@ -1,25 +1,23 @@
 import * as fs from "fs";
 import * as path from "path";
-
-// Constantes globales mal organisées
-const TAX = 0.2;
-const SHIPPING_LIMIT = 50;
-const SHIP = 5.0;
-const PREMIUM_THRESHOLD = 1000;
-const LOYALTY_RATIO = 0.01;
-const HANDLING_FEE = 2.5;
-const MAX_DISCOUNT = 200;
-
-// Types minimaux (manque de typage propre)
-type Customer = any;
-type Order = any;
-type Product = any;
-type ShippingZone = any;
-type Promotion = any;
+import {
+  LOYALTY_RATIO,
+  MAX_DISCOUNT,
+  TAX,
+  SHIPPING_LIMIT,
+  HANDLING_FEE,
+} from "./config/constants";
+import {
+  Customer,
+  Product,
+  ShippingZone,
+  Promotion,
+  Order,
+} from "./types/types";
 
 // Fonction principale qui fait TOUT
 function run(): string {
-  const base = __dirname;
+  const base = path.join(__dirname, "..");
   const custPath = path.join(base, "data", "customers.csv");
   const ordPath = path.join(base, "data", "orders.csv");
   const prodPath = path.join(base, "data", "products.csv");

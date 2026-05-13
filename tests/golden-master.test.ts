@@ -1,6 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
-import { run } from "../src/orderReportLegacy";
+import { run } from "../src/orderReportRefactored";
 
 describe("Golden Master Regression Test", () => {
   it("refactored output text should exactly match legacy output text", () => {
